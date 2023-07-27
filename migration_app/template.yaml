@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  python3.9
+
+  Sample SAM Template for migration_app
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+
+Resources:
+  MigrationFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        Migration:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /insert
+            Method: post
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./migration
+      DockerTag: python3.9-v1
+
+  Requirement1Function:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        Requirement1:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /req1
+            Method: get
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./req1
+      DockerTag: python3.9-v1
+
+  Requirement2Function:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        Requirement2:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /req2
+            Method: get
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./req2
+      DockerTag: python3.9-v1
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  MigrationApi:
+    Description: "API Gateway endpoint URL for Prod stage for Migration function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert/"
+  MigrationFunction:
+    Description: "Migration Lambda Function ARN"
+    Value: !GetAtt MigrationFunction.Arn
+  MigrationFunctionIamRole:
+    Description: "Implicit IAM Role created for Migration function"
+    Value: !GetAtt MigrationFunctionRole.Arn
+  ##
+  Requirement1Api:
+    Description: "API Gateway endpoint URL for Prod stage for Requirement1 function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/req1/"
+  Requirement1Function:
+    Description: "Requirement1 Lambda Function ARN"
+    Value: !GetAtt Requirement1Function.Arn
+  Requirement1FunctionIamRole:
+    Description: "Implicit IAM Role created for Requirement1 function"
+    Value: !GetAtt Requirement1FunctionRole.Arn
+  ##
+  Requirement2Api:
+    Description: "API Gateway endpoint URL for Prod stage for Requirement2 function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/req2/"
+  Requirement2Function:
+    Description: "Requirement2 Lambda Function ARN"
+    Value: !GetAtt Requirement2Function.Arn
+  Requirement2FunctionIamRole:
+    Description: "Implicit IAM Role created for Requirement2 function"
+    Value: !GetAtt Requirement2FunctionRole.Arn
