@@ -24,6 +24,15 @@ Resources:
           Properties:
             Path: /insert
             Method: post
+      Environment:  # Add Environment property to specify environment variables
+        Variables:
+          HOST: "globantinstance.c1wexce7zufd.us-east-1.rds.amazonaws.com"
+          PORT: "5432"
+          DB_NAME: "globantdb"
+          DB_USER: "postgres_user"
+          DB_PASSWORD: "Bepatient123-"
+          ENV: "aws"
+          
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./migration

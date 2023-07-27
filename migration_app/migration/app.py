@@ -1,46 +1,57 @@
 import json
 import pandas as pd
-import io
+import os
+from sqlalchemy import create_engine
 
-#Columns format definition for every table
-COLUMNS = {
-    "departments": {"id": int, "department": str},
-    "jobs": {"id": int, "job": str},
-    "hired_employees": {"id": int, "name": str, "datetime": str, "department_id": int, "job_id": int}
-}
+
+def read_columns_config():
+    """
+    Read and return the list of columns configuration 
+    to be used in the migration process
+    """
+    if os.getenv("ENV") == 'aws':
+        path = 'columns_config.json'
+    elif os.getenv("ENV") == 'local':
+        path = 'migration_app/migration/columns_config.json'
+
+    with open(path, "r") as file:
+        data = json.load(file)
+    return data
+
+
+COLUMNS = read_columns_config()
+
 
 def lambda_handler(event, context):
 
-    keys = list(event.keys())
+    keys = list(json.loads(event["body"]).keys())
+    #print(f"event: {event['body']}")
 
-    #If this keys are send by the user, it means that data comes inside the payload
     if "entity" in keys and "data" in keys:
+        """""
+        Execute this statement if the payload has entity and data keys
+        which means that the data is going to be read from the payload
+        """""
+
         try:
-            entity = event["entity"].lower()
-            data = event["data"]
+            #read data from payload request
+            entity = json.loads(event["body"])["entity"].lower()#entity is the table name
+            data = json.loads(event["body"])["data"]#data is the CSV
 
-            #Validate if data comes in any expected format when data is sent directly in the payload
-            #Data should be string, bytes or binary objects (BufferedReader or TextIOWrapper)
+            #Validate if data comes in any expected format that should be string
             if isinstance(data, str):
-                print("data came as string")
-
-            elif isinstance(data, bytes):
-                print("data came as bytes")
-                data = event["data"].decode()
-
-            elif isinstance(data, io.BufferedReader):
-                print("data came as BufferedReader")
-                data = data.read().decode()
-            
-            elif isinstance(data, io.TextIOWrapper):
-                print("data came as TextIOWrapper")
-                data = data.read()
+                pass
             
             else:
-                return {"statusCode": 400, "body": json.dumps({"message": "wrong data format"})}
+                return {
+                    "statusCode": 400, 
+                    "body": json.dumps({
+                        "message": "wrong data format, expected format should be string"
+                        })
+                    }
             
-            #Validate which table in the user trying to store using the entity parameter that need to be send in the payload
-            if entity in ["departments", "jobs", "hired_employees"]:
+            #Entity must be in COLUMNS configuration
+            if entity in list(COLUMNS.keys()):
                 #Take the first 1000 rows from the entire data
                 data = "\n".join(data.split("\n")[:1000])
 
@@ -51,66 +62,80 @@ def lambda_handler(event, context):
                 del(data)
 
                 #Read data into a pandas dataframe
-                headers = list(COLUMNS[entity].keys())
+                headers = list(COLUMNS[entity]["columns"].keys())
                 df = pd.read_csv(local_path, sep=",", names=headers)
 
-                print(df)
-
+                #Call store_data function if data has more than 0 records
                 if len(df) > 0:
-                    store_data(df)
+                    store_data(df, entity)
 
             else:
-                return {"statusCode": 400, "body": json.dumps({"message": "wrong entity"})}
+                #Return error if provided entity does not exist in COLUMNS configuration
+                return {"statusCode": 400, "body": json.dumps({"message": "entity/table does not exists"})}
         
         except Exception as e:
-            raise e
-        
+            print(e)
+            return {"statusCode": 400, "body": json.dumps({"message": str(e)})}
+    
     elif "entity" in keys and "s3_uri" in keys:
+        """""
+        Execute this statement if the payload has entity and s3_uri keys
+        which means that the data is going to be read from AWS S3 
+        """""
         try:
             pass
         except Exception as e:
-            raise e
+            print(e)
+            return {"statusCode": 400, "body": json.dumps({"message": str(e)})}
         
     else:
-        return {"statusCode": 400, "body": json.dumps({"message": "wrong keys"})}
+        #Return error if keys in the payload doe not match with required keys
+        return {"statusCode": 400, "body": json.dumps({"message": "wrong payload keys"})}
 
     return {
         "statusCode": 200,
         "body": json.dumps(
             {
-                "message": "hello glober...",
+                "message": "success running the application",
             }
         ),
     }
 
-def store_data(df):
-    pass
 
-if __name__ == "__main__":
+def store_data(df, entity):
+    """
+    This function is in charge of receive data to be uploades to PostgreSQL, 
+    read connection configuration, stablish connection to the engine
+    and finally upload incoming data to the table defined in the entity argument
+    """
+    print("Store data to PostgreSQL table: ", entity)
+    try:
+        print("Connecting to PostgreSQL engine")
 
-    data_type = ["str","bytes","csv","text"][1]
-    input_entity = "hired_employees"
+        #Read connection information
+        host = os.getenv("HOST")
+        port = os.getenv("PORT")
+        dbname = os.getenv("DB_NAME")
+        user = os.getenv("DB_USER")
+        password = os.getenv("DB_PASSWORD")
+        
+        #Create SQLAlchemy engine
+        connection_url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
+        engine = create_engine(connection_url)
 
-    #input_file = 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/jobs.csv'
-    #input_file = 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/departments.csv'
-    input_file = 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/hired_employees.csv'
+        print("Success connection to PostgreSQL")
 
-    if data_type == "str":
-        with open(input_file, 'rt') as file:
-            csv_data = file.read()
-        print(lambda_handler({"entity":input_entity, "data": csv_data}, ""))
+        print("Insert data to PostgreSQL")
 
-    if data_type == "bytes":
-        with open(input_file, 'rt') as file:
-            csv_data = file.read().encode("utf-8")
-        with open(input_file, 'rb') as file:
-           csv_data = file.read()
-        print(lambda_handler({"entity":input_entity, "data": csv_data}, ""))
+        #Identify table typo to know if replace table or insert new data
+        mode = "replace" if COLUMNS[entity]["type"]=="catalog" else "append"
 
-    if data_type == "csv":
-        csv_data = open(input_file, 'rb')
-        print(lambda_handler({"entity":input_entity, "data": csv_data}, ""))
+        #Connect and insert data
+        with engine.connect() as connection:
+            df.to_sql(entity, connection, if_exists=mode, index=False)
+            connection.commit()
 
-    if data_type == "text":
-        csv_data = open(input_file, 'rt')
-        print(lambda_handler({"entity":input_entity, "data": csv_data}, ""))
+        print("Success storing data to PostgreSQL")
+
+    except Exception as e:
+        raise e
