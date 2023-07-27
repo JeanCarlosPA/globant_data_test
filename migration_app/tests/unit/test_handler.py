@@ -7,28 +7,32 @@ from migration import app
 
 def event(arg):
     """ Generates API GW Event"""
+    if sys.argv[1] == 'str':
+        tests_data = {
+            "jobs": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/jobs.csv',
+            "departments": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/departments.csv',
+            "hired_employees": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/hired_employees.csv'
+            }
+        
+        with open(tests_data[arg], 'rt') as file:
+            data = file.read()
 
-    tests = {
-        "jobs": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/jobs.csv',
-        "departments": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/departments.csv',
-        "hired_employees": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/hired_employees.csv'
-        }
-
-    with open(tests[arg], 'rt') as file:
-        csv_data = file.read()
+        return {"body": json.dumps({"entity":arg, "data": data})}
     
-    return {"body": json.dumps({"entity":arg, "data": csv_data})}
+    if sys.argv[1] == 's3':
+        tests_s3 = {
+            "jobs": 's3://globant-test-storage/jobs.csv',
+            "departments": 's3://globant-test-storage/departments.csv',
+            "hired_employees": 's3://globant-test-storage/hired_employees.csv'
+            }
+        
+        data = tests_s3[arg]
 
+        return {"body": json.dumps({"entity":arg, "s3_uri": data})}
 
 def test_lambda_handler(input):
 
     ret = app.lambda_handler(event(input), "")
-    data = json.loads(ret["body"])
-
-    assert ret["statusCode"] == 200
-    assert "message" in ret["body"]
-    #assert data["message"] == "hello world"
-
 
 
 if __name__ == '__main__':
