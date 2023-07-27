@@ -1,72 +1,41 @@
 import json
-
 import pytest
-
+import sys
+sys.path.append('migration_app')
 from migration import app
 
 
-@pytest.fixture()
-def apigw_event():
+def event(arg):
     """ Generates API GW Event"""
+    if sys.argv[1] == 'str':
+        tests_data = {
+            "jobs": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/jobs.csv',
+            "departments": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/departments.csv',
+            "hired_employees": 'C:/Users/Jean Palomeque/Documents/globant_test/data_challenge_files (2)/hired_employees.csv'
+            }
+        
+        with open(tests_data[arg], 'rt') as file:
+            data = file.read()
 
-    return {
-        "body": '{ "test": "body"}',
-        "resource": "/{proxy+}",
-        "requestContext": {
-            "resourceId": "123456",
-            "apiId": "1234567890",
-            "resourcePath": "/{proxy+}",
-            "httpMethod": "POST",
-            "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-            "accountId": "123456789012",
-            "identity": {
-                "apiKey": "",
-                "userArn": "",
-                "cognitoAuthenticationType": "",
-                "caller": "",
-                "userAgent": "Custom User Agent String",
-                "user": "",
-                "cognitoIdentityPoolId": "",
-                "cognitoIdentityId": "",
-                "cognitoAuthenticationProvider": "",
-                "sourceIp": "127.0.0.1",
-                "accountId": "",
-            },
-            "stage": "prod",
-        },
-        "queryStringParameters": {"foo": "bar"},
-        "headers": {
-            "Via": "1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)",
-            "Accept-Language": "en-US,en;q=0.8",
-            "CloudFront-Is-Desktop-Viewer": "true",
-            "CloudFront-Is-SmartTV-Viewer": "false",
-            "CloudFront-Is-Mobile-Viewer": "false",
-            "X-Forwarded-For": "127.0.0.1, 127.0.0.2",
-            "CloudFront-Viewer-Country": "US",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Upgrade-Insecure-Requests": "1",
-            "X-Forwarded-Port": "443",
-            "Host": "1234567890.execute-api.us-east-1.amazonaws.com",
-            "X-Forwarded-Proto": "https",
-            "X-Amz-Cf-Id": "aaaaaaaaaae3VYQb9jd-nvCd-de396Uhbp027Y2JvkCPNLmGJHqlaA==",
-            "CloudFront-Is-Tablet-Viewer": "false",
-            "Cache-Control": "max-age=0",
-            "User-Agent": "Custom User Agent String",
-            "CloudFront-Forwarded-Proto": "https",
-            "Accept-Encoding": "gzip, deflate, sdch",
-        },
-        "pathParameters": {"proxy": "/examplepath"},
-        "httpMethod": "POST",
-        "stageVariables": {"baz": "qux"},
-        "path": "/examplepath",
-    }
+        return {"body": json.dumps({"entity":arg, "data": data})}
+    
+    if sys.argv[1] == 's3':
+        tests_s3 = {
+            "jobs": 's3://globant-test-storage/jobs.csv',
+            "departments": 's3://globant-test-storage/departments.csv',
+            "hired_employees": 's3://globant-test-storage/hired_employees.csv'
+            }
+        
+        data = tests_s3[arg]
+
+        return {"body": json.dumps({"entity":arg, "s3_uri": data})}
+
+def test_lambda_handler(input):
+
+    ret = app.lambda_handler(event(input), "")
 
 
-def test_lambda_handler(apigw_event, mocker):
-
-    ret = app.lambda_handler(apigw_event, "")
-    data = json.loads(ret["body"])
-
-    assert ret["statusCode"] == 200
-    assert "message" in ret["body"]
-    assert data["message"] == "hello world"
+if __name__ == '__main__':
+    test_lambda_handler("jobs")
+    test_lambda_handler("departments")
+    test_lambda_handler("hired_employees")

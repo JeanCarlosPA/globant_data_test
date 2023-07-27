@@ -1,0 +1,5 @@
+{
+    "departments": {"columns": {"id": "int", "department": "str"}, "type": "catalog"},
+    "jobs": {"columns": {"id": "int", "job": "str"}, "type": "catalog"},
+    "hired_employees": {"columns": {"id": "int", "name": "str", "datetime": "str", "department_id": "int", "job_id": "int"}, "type": "transactional"}
+}

@@ -8,8 +8,8 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 30
-    MemorySize: 128
+    Timeout: 60
+    MemorySize: 256
 
 Resources:
   MigrationFunction:
@@ -24,6 +24,17 @@ Resources:
           Properties:
             Path: /insert
             Method: post
+      Environment:  # Add Environment property to specify environment variables
+        Variables:
+          HOST: ""
+          PORT: ""
+          DB_NAME: ""
+          DB_USER: ""
+          DB_PASSWORD: ""
+          ENV: "aws"
+      Policies:  # Add the S3 full access policy here
+        - AmazonS3FullAccess  # This grants full access to S3
+
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./migration
