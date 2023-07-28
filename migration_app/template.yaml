@@ -34,7 +34,7 @@ Resources:
           ENV: "aws"
       Policies:  # Add the S3 full access policy here
         - AmazonS3FullAccess  # This grants full access to S3
-
+        
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./migration
@@ -50,11 +50,19 @@ Resources:
         Requirement1:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /req1
+            Path: /requirement1
             Method: get
+      Environment:
+        Variables:
+          HOST: ""
+          PORT: ""
+          DB_NAME: ""
+          DB_USER: ""
+          DB_PASSWORD: ""
+          ENV: "aws"
     Metadata:
       Dockerfile: Dockerfile
-      DockerContext: ./req1
+      DockerContext: ./requirement1
       DockerTag: python3.9-v1
 
   Requirement2Function:
@@ -67,11 +75,19 @@ Resources:
         Requirement2:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /req2
+            Path: /requirement2
             Method: get
+      Environment:
+        Variables:
+          HOST: ""
+          PORT: ""
+          DB_NAME: ""
+          DB_USER: ""
+          DB_PASSWORD: ""
+          ENV: "aws"
     Metadata:
       Dockerfile: Dockerfile
-      DockerContext: ./req2
+      DockerContext: ./requirement2
       DockerTag: python3.9-v1
 
 Outputs:
@@ -90,7 +106,7 @@ Outputs:
   ##
   Requirement1Api:
     Description: "API Gateway endpoint URL for Prod stage for Requirement1 function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/req1/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/requirement1/"
   Requirement1Function:
     Description: "Requirement1 Lambda Function ARN"
     Value: !GetAtt Requirement1Function.Arn
@@ -100,7 +116,7 @@ Outputs:
   ##
   Requirement2Api:
     Description: "API Gateway endpoint URL for Prod stage for Requirement2 function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/req2/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/requirement2/"
   Requirement2Function:
     Description: "Requirement2 Lambda Function ARN"
     Value: !GetAtt Requirement2Function.Arn
