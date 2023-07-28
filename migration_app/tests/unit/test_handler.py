@@ -2,7 +2,9 @@ import json
 import pytest
 import sys
 sys.path.append('migration_app')
-from migration import app
+from migration import app as migrate
+from requirement1 import app as req1
+from requirement2 import app as req2
 
 
 def event(arg):
@@ -30,12 +32,18 @@ def event(arg):
 
         return {"body": json.dumps({"entity":arg, "s3_uri": data})}
 
-def test_lambda_handler(input):
+def test_lambda_handler():
 
-    ret = app.lambda_handler(event(input), "")
+    print(migrate.lambda_handler(event("jobs"), ""))
+    print(migrate.lambda_handler(event("departments"), ""))
+    print(migrate.lambda_handler(event("hired_employees"), ""))
+
+    print(req1.lambda_handler("", ""))
+    print(req2.lambda_handler("", ""))
 
 
 if __name__ == '__main__':
-    test_lambda_handler("jobs")
-    test_lambda_handler("departments")
-    test_lambda_handler("hired_employees")
+    test_lambda_handler()
+
+    
+
