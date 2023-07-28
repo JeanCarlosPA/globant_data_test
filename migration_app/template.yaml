@@ -10,6 +10,14 @@ Globals:
   Function:
     Timeout: 60
     MemorySize: 256
+    Environment:  # Add Environment property to specify environment variables
+      Variables:
+        HOST: ""
+        PORT: ""
+        DB_NAME: ""
+        DB_USER: ""
+        DB_PASSWORD: ""
+        ENV: "aws"
 
 Resources:
   MigrationFunction:
@@ -24,17 +32,9 @@ Resources:
           Properties:
             Path: /insert
             Method: post
-      Environment:  # Add Environment property to specify environment variables
-        Variables:
-          HOST: ""
-          PORT: ""
-          DB_NAME: ""
-          DB_USER: ""
-          DB_PASSWORD: ""
-          ENV: "aws"
       Policies:  # Add the S3 full access policy here
         - AmazonS3FullAccess  # This grants full access to S3
-
+        
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./migration
@@ -50,11 +50,11 @@ Resources:
         Requirement1:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /req1
+            Path: /requirement1
             Method: get
     Metadata:
       Dockerfile: Dockerfile
-      DockerContext: ./req1
+      DockerContext: ./requirement1
       DockerTag: python3.9-v1
 
   Requirement2Function:
@@ -67,11 +67,11 @@ Resources:
         Requirement2:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /req2
+            Path: /requirement2
             Method: get
     Metadata:
       Dockerfile: Dockerfile
-      DockerContext: ./req2
+      DockerContext: ./requirement2
       DockerTag: python3.9-v1
 
 Outputs:
@@ -81,29 +81,29 @@ Outputs:
   MigrationApi:
     Description: "API Gateway endpoint URL for Prod stage for Migration function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert/"
-  MigrationFunction:
-    Description: "Migration Lambda Function ARN"
-    Value: !GetAtt MigrationFunction.Arn
-  MigrationFunctionIamRole:
-    Description: "Implicit IAM Role created for Migration function"
-    Value: !GetAtt MigrationFunctionRole.Arn
+  # MigrationFunction:
+  #   Description: "Migration Lambda Function ARN"
+  #   Value: !GetAtt MigrationFunction.Arn
+  # MigrationFunctionIamRole:
+  #   Description: "Implicit IAM Role created for Migration function"
+  #   Value: !GetAtt MigrationFunctionRole.Arn
   ##
   Requirement1Api:
     Description: "API Gateway endpoint URL for Prod stage for Requirement1 function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/req1/"
-  Requirement1Function:
-    Description: "Requirement1 Lambda Function ARN"
-    Value: !GetAtt Requirement1Function.Arn
-  Requirement1FunctionIamRole:
-    Description: "Implicit IAM Role created for Requirement1 function"
-    Value: !GetAtt Requirement1FunctionRole.Arn
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/requirement1/"
+  # Requirement1Function:
+  #   Description: "Requirement1 Lambda Function ARN"
+  #   Value: !GetAtt Requirement1Function.Arn
+  # Requirement1FunctionIamRole:
+  #   Description: "Implicit IAM Role created for Requirement1 function"
+  #   Value: !GetAtt Requirement1FunctionRole.Arn
   ##
   Requirement2Api:
     Description: "API Gateway endpoint URL for Prod stage for Requirement2 function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/req2/"
-  Requirement2Function:
-    Description: "Requirement2 Lambda Function ARN"
-    Value: !GetAtt Requirement2Function.Arn
-  Requirement2FunctionIamRole:
-    Description: "Implicit IAM Role created for Requirement2 function"
-    Value: !GetAtt Requirement2FunctionRole.Arn
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/requirement2/"
+  # Requirement2Function:
+  #   Description: "Requirement2 Lambda Function ARN"
+  #   Value: !GetAtt Requirement2Function.Arn
+  # Requirement2FunctionIamRole:
+  #   Description: "Implicit IAM Role created for Requirement2 function"
+  #   Value: !GetAtt Requirement2FunctionRole.Arn

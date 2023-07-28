@@ -4,6 +4,30 @@ import os
 from sqlalchemy import create_engine
 import awswrangler as wr
 
+"""
+This python function has the responsability of receive a set of
+parameters to start a migration of data from csv format to a PostgreSQL database, those params can be:
+    entity: This param must contain a table name to be migrated, this table name
+            have to be listed in the columns_config.json file and the schema have to
+            match with the table config schema.
+    data or s3_uri: In the case of data, it have to be a csv formated string, this is the
+            data to be inserted in the database. In the case of S3 uri, it must be a valid
+            S3 uri pointing to a csv file that can be accessed by the User/Rol 
+            running the application.
+
+Depends on the set of parameters the function may read the file directly form S3 and insert the data into the database
+or it will read and write the data from the payload before to send it to the database.
+
+The entity value must be listed in the columns_config.json file with its columns and types and the type of
+the table itself. The type of the tables can be catalog or transactional what allows the program to determine how
+to treat an especific table insertion whether append all data or overwrite it:
+    catalog: Overwrite
+    transactional: append
+
+If the set up is wrong or something goes wrong in the process, the function will return a 400 status code and the error in the message
+but if everything is ok, it will return a 200 status code.
+"""
+
 print("Starting migration process")
 
 def read_columns_config():
