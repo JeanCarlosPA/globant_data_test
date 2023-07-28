@@ -32,7 +32,7 @@ sam build
 sam deploy --guided
 ```
 
-The first command will build a docker image from a Dockerfile for every function and then copy the source of your application inside the Docker images. 
+The first command will build a docker image from a Dockerfile and then copy the source of your application inside the Docker image
 
 The second command will package and deploy your application to AWS, with a series of prompts:
 
@@ -42,40 +42,7 @@ The second command will package and deploy your application to AWS, with a serie
 * **Allow SAM CLI IAM role creation**: This AWS SAM templates creates AWS IAM roles required for the AWS Lambda functions and Api Gateways to access AWS services
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
 
-You can find your API Gateway Endpoints URL for MigrationFunction, Requirement1Function and Requirement2Funcction in the output values displayed in the console after deployment.
-
-## Use the SAM CLI to build and test locally
-
-Build your application with the `sam build` command.
-
-```bash
-migration_app$ sam build
-```
-
-The SAM CLI builds docker images from a Dockerfile and then installs dependencies defined in `{functionName}/requirements.txt` inside the docker image. The processed template file is saved in the `.aws-sam/build` folder.
-
-Test a single function by invoking unit/test_handler.py and setting environment variables and arguments as shown below:
-
-```bash
-"args": ["s3"],
-"env": {
-    "HOST": "...",
-    "PORT": "...",
-    "DB_NAME": "...",
-    "DB_USER": "...",
-    "DB_PASSWORD": "...",
-    "ENV": "local"
-}
-
-Note: It is needed to be provided the right value for HOST, PORT, DB_NAME, DB_USER and DB_PASSWORD. Those values are for the PostgreSQL connection.
-```
-
-The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
-
-```bash
-migration_app$ sam local start-api
-migration_app$ curl http://localhost:3000/
-```
+You can find your API Gateway Endpoints URL for MigrationFunction, Requirement1Function and Requirement2Function in the output values displayed in the console after deployment.
 
 The SAM CLI reads the application template to determine the Environment Variables, MemorySize and Timeout to be set in the functions. The `Globals` property on the template includes this information. The environment Variables values need to provided before to run `sam build` and `sam deploy --guided` commands.
 
@@ -94,14 +61,47 @@ The SAM CLI reads the application template to determine the Environment Variable
                 ENV: "aws"
 ```
 
+## Use the SAM CLI to build and test locally
+
+Build your application with the `sam build` command.
+
+```bash
+migration_app$ sam build
+```
+
+The SAM CLI builds docker image from a Dockerfile and then installs dependencies defined in `{functionName}/requirements.txt` inside the docker image. The processed template file is saved in the `.aws-sam/build` folder.
+
+Test all functions by invoking unit/test_handler.py and setting environment variables and arguments as shown below:
+
+```bash
+"args": ["s3"],
+"env": {
+    "HOST": "...",
+    "PORT": "...",
+    "DB_NAME": "...",
+    "DB_USER": "...",
+    "DB_PASSWORD": "...",
+    "ENV": "local"
+}
+
+Note: It is needed to be provided the right value to HOST, PORT, DB_NAME, DB_USER and DB_PASSWORD. Those values are to the PostgreSQL connection.
+```
+
+The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
+
+```bash
+migration_app$ sam local start-api
+migration_app$ curl http://localhost:3000/
+```
+
 ## Use Rest API requests to use the hosted application
 
 Once the Application is deployed and running in the AWS account, it can be used by sending some http requests to the different endpoints depending on the task that need to be perform.
 
 Here are some example using python with requests library locally to call those endpoints
 
-*MigrationFunction: 
-MigrationFunction respond to a POST call
+# MigrationFunction: 
+Respond to a POST call
 ```bash
 import requests
 
@@ -118,8 +118,8 @@ print(response, response.json())
 OUTPUT>> <Response [200]>, {'message': 'success running the application'}
 ```
 
-*Requirement1Function:
-Requirement1Function respond to a GET call
+# Requirement1Function:
+Respond to a GET call
 ```bash
 import requests
 
@@ -134,8 +134,8 @@ OUTPUT>> <Response [200]>, {'message': 'success getting number of employees hire
                             'query_result': 'job,department,q1,q2,q3,q4\nAccount Representative IV,Accounting,1,0,0,0\n'}
 ```
 
-*Requirement2Function:
-Requirement2Function respond to a GET call
+# Requirement2Function:
+Respond to a GET call
 ```bash
 import requests
 
@@ -149,6 +149,9 @@ print(response, response.json())
 OUTPUT>> <Response [200]>, {'message': 'success getting number of employees hired for each job and department in 2021 divided by quarter',
                             'query_result': 'id,department,count\n8,Support,256\n6,Human Resources,249\n'}
 ```
+
+# Note:
+Keep in mind that the values for test endpoints hosted in AWS the right URL need to be provided in the request.
 
 ## Cleanup
 
