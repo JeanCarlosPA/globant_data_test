@@ -3,15 +3,22 @@ from sqlalchemy import create_engine, text
 import pandas as pd
 import os
 
+"""
+This functions will calculate and return the list of ids, name and number of 
+employees hired of each department that hired more employees than the mean of employees hired in 2021 for all the departments
+"""
+
 def lambda_handler(event, context):
     
     try:
+        #Read DB connection params from environment variables
         host = os.getenv("HOST")
         port = os.getenv("PORT")
         dbname = os.getenv("DB_NAME")
         user = os.getenv("DB_USER")
         password = os.getenv("DB_PASSWORD")
 
+        #Create SQLAlchemy engine
         connection_url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
         engine = create_engine(connection_url)
 
@@ -28,10 +35,11 @@ def lambda_handler(event, context):
                                 GROUP BY dp.id, dp.department) AS sub1)
             ORDER BY count DESC
         """
-  
+
+        #Convert query format for SQLAlchemy 
         sql_query = text(query) 
 
-        # Create a connection and read data into a pandas DataFrame
+        #Create a connection and read data into a pandas DataFrame
         with engine.connect() as connection:
             df = pd.read_sql(sql_query, connection)
         
@@ -39,7 +47,8 @@ def lambda_handler(event, context):
         data = df.to_csv(index=False)
 
     except Exception as e:
-        raise e
+        print(e)
+        return {"statusCode": 400, "body": json.dumps({"message": str(e)})}
 
     return {
         "statusCode": 200,
@@ -50,6 +59,3 @@ def lambda_handler(event, context):
             }
         ),
     }
-
-# if __name__ == '__main__':
-#     print(lambda_handler("",""))

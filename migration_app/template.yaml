@@ -97,29 +97,29 @@ Outputs:
   MigrationApi:
     Description: "API Gateway endpoint URL for Prod stage for Migration function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert/"
-  MigrationFunction:
-    Description: "Migration Lambda Function ARN"
-    Value: !GetAtt MigrationFunction.Arn
-  MigrationFunctionIamRole:
-    Description: "Implicit IAM Role created for Migration function"
-    Value: !GetAtt MigrationFunctionRole.Arn
+  # MigrationFunction:
+  #   Description: "Migration Lambda Function ARN"
+  #   Value: !GetAtt MigrationFunction.Arn
+  # MigrationFunctionIamRole:
+  #   Description: "Implicit IAM Role created for Migration function"
+  #   Value: !GetAtt MigrationFunctionRole.Arn
   ##
   Requirement1Api:
     Description: "API Gateway endpoint URL for Prod stage for Requirement1 function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/requirement1/"
-  Requirement1Function:
-    Description: "Requirement1 Lambda Function ARN"
-    Value: !GetAtt Requirement1Function.Arn
-  Requirement1FunctionIamRole:
-    Description: "Implicit IAM Role created for Requirement1 function"
-    Value: !GetAtt Requirement1FunctionRole.Arn
+  # Requirement1Function:
+  #   Description: "Requirement1 Lambda Function ARN"
+  #   Value: !GetAtt Requirement1Function.Arn
+  # Requirement1FunctionIamRole:
+  #   Description: "Implicit IAM Role created for Requirement1 function"
+  #   Value: !GetAtt Requirement1FunctionRole.Arn
   ##
   Requirement2Api:
     Description: "API Gateway endpoint URL for Prod stage for Requirement2 function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/requirement2/"
-  Requirement2Function:
-    Description: "Requirement2 Lambda Function ARN"
-    Value: !GetAtt Requirement2Function.Arn
-  Requirement2FunctionIamRole:
-    Description: "Implicit IAM Role created for Requirement2 function"
-    Value: !GetAtt Requirement2FunctionRole.Arn
+  # Requirement2Function:
+  #   Description: "Requirement2 Lambda Function ARN"
+  #   Value: !GetAtt Requirement2Function.Arn
+  # Requirement2FunctionIamRole:
+  #   Description: "Implicit IAM Role created for Requirement2 function"
+  #   Value: !GetAtt Requirement2FunctionRole.Arn

@@ -5,7 +5,7 @@ version = 0.1
 [default]
 [default.global]
 [default.global.parameters]
-stack_name = "migration_app"
+stack_name = "migration-app"
 
 [default.build]
 [default.build.parameters]
@@ -19,12 +19,8 @@ lint = true
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
-resolve_image_repos = true
 resolve_s3 = true
-stack_name = "migration-app"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1h8ik85y6l9o7"
-s3_prefix = "migration-app"
-region = "us-east-1"
+resolve_image_repos = true
 
 [default.package]
 [default.package.parameters]
