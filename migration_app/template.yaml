@@ -10,6 +10,14 @@ Globals:
   Function:
     Timeout: 60
     MemorySize: 256
+    Environment:  # Add Environment property to specify environment variables
+      Variables:
+        HOST: ""
+        PORT: ""
+        DB_NAME: ""
+        DB_USER: ""
+        DB_PASSWORD: ""
+        ENV: "aws"
 
 Resources:
   MigrationFunction:
@@ -24,14 +32,6 @@ Resources:
           Properties:
             Path: /insert
             Method: post
-      Environment:  # Add Environment property to specify environment variables
-        Variables:
-          HOST: ""
-          PORT: ""
-          DB_NAME: ""
-          DB_USER: ""
-          DB_PASSWORD: ""
-          ENV: "aws"
       Policies:  # Add the S3 full access policy here
         - AmazonS3FullAccess  # This grants full access to S3
         
@@ -52,14 +52,6 @@ Resources:
           Properties:
             Path: /requirement1
             Method: get
-      Environment:
-        Variables:
-          HOST: ""
-          PORT: ""
-          DB_NAME: ""
-          DB_USER: ""
-          DB_PASSWORD: ""
-          ENV: "aws"
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./requirement1
@@ -77,14 +69,6 @@ Resources:
           Properties:
             Path: /requirement2
             Method: get
-      Environment:
-        Variables:
-          HOST: ""
-          PORT: ""
-          DB_NAME: ""
-          DB_USER: ""
-          DB_PASSWORD: ""
-          ENV: "aws"
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./requirement2
