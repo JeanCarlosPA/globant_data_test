@@ -83,9 +83,9 @@ Test all functions by invoking unit/test_handler.py and setting environment vari
     "DB_PASSWORD": "...",
     "ENV": "local"
 }
-
-Note: It is needed to be provided the right value to HOST, PORT, DB_NAME, DB_USER and DB_PASSWORD. Those values are to the PostgreSQL connection.
 ```
+
+`NOTE`: It is needed to be provided the right value to HOST, PORT, DB_NAME, DB_USER and DB_PASSWORD. Those values are to PostgreSQL connection.
 
 The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
 
@@ -150,8 +150,7 @@ OUTPUT>> <Response [200]>, {'message': 'success getting number of employees hire
                             'query_result': 'id,department,count\n8,Support,256\n6,Human Resources,249\n'}
 ```
 
-# Note:
-Keep in mind that the values for test endpoints hosted in AWS the right URL need to be provided in the request.
+`NOTE`: Keep in mind that the values for test endpoints hosted in AWS the right URL need to be provided in the request.
 
 ## Cleanup
 
