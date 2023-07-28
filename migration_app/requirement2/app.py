@@ -25,13 +25,12 @@ def lambda_handler(event, context):
         query = f"""
             SELECT dp.id, dp.department, COUNT(*) AS count
             FROM hired_employees he
-            LEFT JOIN departments dp ON dp.id = he.department_id
-            WHERE dp.id IS NOT NULL
+            INNER JOIN departments dp ON dp.id = he.department_id
             GROUP BY dp.id, dp.department
             HAVING count(*) > (SELECT AVG(count) FROM (SELECT dp.id, dp.department, COUNT(*) AS count
                                 FROM hired_employees he
-                                LEFT JOIN departments dp ON dp.id = he.department_id
-                                WHERE dp.id IS NOT NULL AND EXTRACT(YEAR FROM TO_DATE(datetime, 'YYYY-MM-DD')) = 2021
+                                INNER JOIN departments dp ON dp.id = he.department_id
+                                WHERE EXTRACT(YEAR FROM TO_DATE(datetime, 'YYYY-MM-DD')) = 2021
                                 GROUP BY dp.id, dp.department) AS sub1)
             ORDER BY count DESC
         """

@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             LEFT JOIN departments dp ON dp.id = he.department_id
             WHERE EXTRACT(YEAR FROM TO_DATE(datetime, 'YYYY-MM-DD')) = 2021
             GROUP BY jb.job, dp.department
-            ORDER BY jb.job, dp.department;
+            ORDER BY dp.department, jb.job;
         """
 
         #Convert query format for SQLAlchemy 
